@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
+<div class="container mt-4" style="padding-top: 80px;"> <!-- jarak dari navbar -->
 
-    <h2 class="mb-4">Edit Barang</h2>
+    <h2 class="mb-4 text-pink fw-bold">Edit Barang</h2>
 
     <form action="{{ route('barang.update', $barang->id) }}"
           method="POST" class="card p-4 shadow-sm">
@@ -33,7 +33,7 @@
 
         <div class="mb-3">
             <label class="form-label">Kategori</label>
-            <select name="kategori_id" class="form-select" required>
+            <select name="kategori_id" class="form-select bg-pink text-white" required>
                 @foreach($kategoris as $kategori)
                 <option value="{{ $kategori->id }}"
                     {{ $kategori->id == $barang->kategori_id ? 'selected' : '' }}>
@@ -43,10 +43,27 @@
             </select>
         </div>
 
-        <button type="submit" class="btn btn-warning">Update</button>
-        <a href="{{ route('barang.index') }}" class="btn btn-secondary">Kembali</a>
+        <div class="d-flex gap-2"> <!-- memberi jarak antar tombol -->
+            <button type="submit" class="btn btn-warning">
+                <i class="fas fa-edit me-1"></i> Update
+            </button>
+            <a href="{{ route('barang.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Batal
+            </a>
+        </div>
 
     </form>
 
 </div>
+
+{{-- Custom CSS --}}
+<style>
+    .text-pink { color: #e75480 !important; }
+    .bg-pink { background-color: #e75480 !important; }
+    .form-select.bg-pink option { background-color: #fff; color: #000; } /* agar option terbaca */
+</style>
+
+{{-- Font Awesome --}}
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
 @endsection
