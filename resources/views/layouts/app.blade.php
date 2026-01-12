@@ -91,6 +91,14 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
             <i class='bx bx-home'></i> <span>Dashboard</span>
         </a>
     </li>
+    @if(Auth::user()->role === 'admin')
+    <li class="nav-item mb-2">
+        <a href="{{ route('user.index') }}" class="nav-link">
+            <i class='bx bx-user'></i>
+            <span>User Management</span>
+        </a>
+    </li>
+    @endif
     <li class="nav-item mb-2">
         <a href="{{ route('kategori.index') }}" class="nav-link">
             <i class='bx bx-category'></i> <span>Kategori</span>

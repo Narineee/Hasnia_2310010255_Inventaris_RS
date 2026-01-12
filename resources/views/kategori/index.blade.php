@@ -1,77 +1,77 @@
 @extends('layouts.app')
 
+@section('title', 'Data Kategori')
+
 @section('content')
-<div class="container mt-4">
+<div class="container-fluid">
 
-    <h2 class="mb-4 text-pink fw-bold">Data Kategori</h2>
-
-    <div class="mb-3 text-end">
-        <a href="{{ route('kategori.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i> Tambah Kategori
-        </a>
+    {{-- Header --}}
+    <div class="row mb-4">
+        <div class="col d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold text-primary mb-0">Data Kategori</h4>
+                <small class="text-muted">Daftar kategori barang</small>
+            </div>
+            <a href="{{ route('kategori.create') }}" class="btn btn-primary">
+                <i class='bx bx-plus'></i> Tambah Kategori
+            </a>
+        </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark text-white bg-pink">
-                <tr>
-                    <th>ID</th>
-                    <th>Nama Kategori</th>
-                    <th width="180px">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($kategoris as $kategori)
-                <tr class="table-hover">
-                    <td>{{ $kategori->id }}</td>
-                    <td>{{ $kategori->nama_kategori }}</td>
-                    <td>
-                        <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn btn-sm btn-warning me-1">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
+    {{-- Alert --}}
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-                        <form action="{{ route('kategori.destroy', $kategori->id) }}" 
-                              method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger"
-                                onclick="return confirm('Yakin ingin menghapus?')">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    {{-- Table --}}
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="5%">No</th>
+                            <th>Nama Kategori</th>
+                            <th width="20%" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($kategoris as $kategori)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $kategori->nama_kategori }}</td>
+                            <td class="text-center">
+                                <a href="{{ route('kategori.edit', $kategori->id) }}"
+                                   class="btn btn-sm btn-warning">
+                                    <i class='bx bx-edit'></i>
+                                </a>
+
+                                <form action="{{ route('kategori.destroy', $kategori->id) }}"
+                                      method="POST"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Yakin hapus kategori ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">
+                                Belum ada data kategori
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 </div>
-
-{{-- Custom CSS --}}
-<style>
-    .text-pink { color: #e75480 !important; }
-
-    /* Warna hover baris */
-    tbody tr:hover {
-        background-color: rgba(231, 84, 128, 0.2);
-    }
-
-    /* Tombol tambah */
-    .btn-primary i {
-        vertical-align: middle;
-    }
-
-    /* Spasi dari navbar */
-    .content-wrapper {
-        margin-left: 220px; /* sidebar */
-        padding: 20px;
-        padding-top: 80px; /* supaya tidak mepet navbar */
-        width: 100%;
-        transition: margin-left 0.3s;
-    }
-</style>
-
-{{-- Font Awesome --}}
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
 @endsection
