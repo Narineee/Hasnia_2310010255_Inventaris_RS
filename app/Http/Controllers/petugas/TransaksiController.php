@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Petugas;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Barang;
+use App\Models\Pengguna;
 use App\Models\Transaksi;
+use App\Models\Notifikasi;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class TransaksiController extends Controller
 {
@@ -70,9 +72,32 @@ class TransaksiController extends Controller
             'tanggal' => now(),
         ]);
 
+        $admins = Pengguna::where('role', 'admin')->get();
+
+        // 🔔 NOTIFIKASI TRANSAKSI
+        foreach ($admins as $admin) {
+            Notifikasi::create([
+                'pengguna_id' => $admin->id,
+                'barang_id' => $barang->id,
+                'judul' => 'Transaksi ' . ucfirst($request->jenis_transaksi),
+                'pesan' => 'Petugas ' . auth()->user()->name .
+                    ' melakukan transaksi ' . $request->jenis_transaksi .
+                    ' barang "' . $barang->nama_barang .
+                    '" sebanyak ' . $request->jumlah . ' unit.',
+                'tipe' => 'informasi',
+            ]);
+        }
         // 🔔 NOTIFIKASI STOK MENIPIS
         if ($barang->stok <= 5) {
-            session()->flash('warning', 'Stok barang "' . $barang->nama_barang . '" hampir habis!');
+            foreach ($admins as $admin) {
+                Notifikasi::create([
+                    'pengguna_id' => $admin->id,
+                    'barang_id' => $barang->id,
+                    'judul' => 'Stok Menipis',
+                    'pesan' => 'Stok barang "' . $barang->nama_barang . '" tersisa ' . $barang->stok . ' unit',
+                    'tipe' => 'peringatan',
+                ]);
+            }
         }
 
         // 🔔 NOTIFIKASI SUKSES

@@ -2,10 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\BarangController;
-use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\Petugas\StokController;
 use App\Http\Controllers\Petugas\TransaksiController;
 
@@ -21,6 +23,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('barang', BarangController::class);
     Route::resource('kategori', KategoriController::class);
     Route::resource('user', UserController::class);
+
+    Route::get('/laporan/transaksi', [LaporanController::class, 'transaksi'])
+        ->name('laporan.transaksi');
+
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])
+        ->name('notifikasi.index');
+
+    Route::post('/notifikasi/{id}/baca', [NotifikasiController::class, 'baca'])
+        ->name('notifikasi.baca');
 });
 
 // Petugas Routes
@@ -33,10 +44,9 @@ Route::middleware(['auth', 'petugas'])->group(function () {
 
     Route::get('/petugas/stok', [StokController::class, 'index'])
         ->name('petugas.stok.index');
-        Route::get('/petugas/transaksi', [TransaksiController::class, 'index'])
+    Route::get('/petugas/transaksi', [TransaksiController::class, 'index'])
         ->name('petugas.transaksi.index');
 
     Route::post('/petugas/transaksi', [TransaksiController::class, 'store'])
         ->name('petugas.transaksi.store');
-
 });

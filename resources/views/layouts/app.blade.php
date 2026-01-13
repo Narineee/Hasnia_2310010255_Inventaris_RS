@@ -1,213 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>@yield('title', 'Inventaris Rumah Sakit')</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Inventaris Rumah Sakit')</title>
 
-{{-- Bootstrap --}}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {{-- Bootstrap --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-{{-- Boxicons --}}
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    {{-- Boxicons --}}
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-<style>
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-/* Navbar */
-.navbar {
-    position: fixed;
-    width: 100%;
-    z-index: 1030;
-    background: linear-gradient(90deg, #1a3f7a, #000);
-}
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            width: 100%;
+            z-index: 1030;
+            background: linear-gradient(90deg, #1a3f7a, #000);
+        }
 
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 220px;
-    height: 100vh;
-    padding-top: 60px;
-    background: linear-gradient(180deg, #1a3f7a, #000);
-    transition: width 0.3s;
-    overflow-y: auto;
-}
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 100vh;
+            padding-top: 60px;
+            background: linear-gradient(180deg, #1a3f7a, #000);
+            transition: width 0.3s;
+            overflow-y: auto;
+        }
 
-.sidebar.collapsed {
-    width: 70px;
-}
+        .sidebar.collapsed {
+            width: 70px;
+        }
 
-.sidebar .nav-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 20px;
-    color: #fff;
-    font-weight: 500;
-}
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: #fff;
+            font-weight: 500;
+        }
 
-.sidebar .nav-link:hover {
-    background-color: #e75480;
-    border-radius: 5px;
-}
+        .sidebar .nav-link:hover {
+            background-color: #e75480;
+            border-radius: 5px;
+        }
 
-.sidebar.collapsed .nav-link span {
-    display: none;
-}
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
 
-.sidebar i {
-    font-size: 18px;
-    width: 24px;
-}
+        .sidebar i {
+            font-size: 18px;
+            width: 24px;
+        }
 
-/* Content */
-.content-wrapper {
-    margin-left: 220px;
-    padding: 20px;
-    padding-top: 80px;
-    transition: margin-left 0.3s;
-}
+        /* Content */
+        .content-wrapper {
+            margin-left: 220px;
+            padding: 20px;
+            padding-top: 80px;
+            transition: margin-left 0.3s;
+        }
 
-.content-wrapper.expanded {
-    margin-left: 70px;
-}
-</style>
+        .content-wrapper.expanded {
+            margin-left: 70px;
+        }
+
+        .notif-text {
+            display: block;
+            max-width: 100%;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .notif-item {
+            max-width: 280px;
+        }
+    </style>
 </head>
 
 <body>
 
-{{-- NAVBAR --}}
-<nav class="navbar navbar-dark">
-    <div class="container-fluid">
-        <button id="sidebarToggle" class="btn btn-outline-light">
-            <i class='bx bx-chevron-left'></i>
-        </button>
+    {{-- NAVBAR --}}
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
 
-        <span class="navbar-brand ms-2">Inventaris RS</span>
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn btn-outline-light">
+                    <i class='bx bx-chevron-left'></i>
+                </button>
+                <span class="navbar-brand ms-2">Inventaris RS</span>
+            </div>
+            @if (auth()->user()->role === 'admin')
+                {{-- 🔔 NOTIFIKASI --}}
+                <div class="dropdown">
+                    <button class="btn btn-outline-light position-relative" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class='bx bx-bell'></i>
+
+                        @if ($navbarNotifikasiCount > 0)
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $navbarNotifikasiCount }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px;">
+
+                        <li class="dropdown-header fw-bold">
+                            Notifikasi
+                        </li>
+
+                        @forelse ($navbarNotifikasi as $notif)
+                            <li>
+                                <a class="dropdown-item small notif-item" href="{{ route('notifikasi.index') }}">
+                                    <strong class="d-block notif-text">{{ $notif->judul }}</strong><br>
+                                    <span class="text-muted notif-text">
+                                        {{ Str::limit($notif->pesan, 80) }}
+                                    </span>
+                                </a>
+                            </li>
+                        @empty
+                            <li class="dropdown-item text-muted small">
+                                Tidak ada notifikasi baru
+                            </li>
+                        @endforelse
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item text-center" href="{{ route('notifikasi.index') }}">
+                                Lihat semua
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            @endif
+        </div>
+    </nav>
+
+
+    {{-- SIDEBAR --}}
+    <div class="sidebar" id="sidebar">
+        <ul class="nav flex-column">
+
+            {{-- DASHBOARD --}}
+            <li class="nav-item mb-2">
+                <a class="nav-link"
+                    href="{{ auth()->user()->role === 'admin' ? route('dashboard') : route('petugas.dashboard') }}">
+                    <i class='bx bx-home'></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            {{-- ADMIN MENU --}}
+            @if (auth()->user()->role === 'admin')
+                <li class="nav-item mb-2">
+                    <a href="{{ route('kategori.index') }}" class="nav-link">
+                        <i class='bx bx-category'></i>
+                        <span>Kategori</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{{ route('barang.index') }}" class="nav-link">
+                        <i class='bx bx-box'></i>
+                        <span>Barang</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{{ route('user.index') }}" class="nav-link">
+                        <i class='bx bx-user'></i>
+                        <span>User</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{{ route('laporan.transaksi') }}" class="nav-link">
+                        <i class='bx bx-file'></i>
+                        <span>Laporan Transaksi</span>
+                    </a>
+                </li>
+            @endif
+
+            {{-- PETUGAS MENU --}}
+            @if (auth()->user()->role === 'petugas')
+                <li class="nav-item mb-2">
+                    <a href="{{ route('petugas.stok.index') }}" class="nav-link">
+                        <i class='bx bx-archive'></i>
+                        <span>Stok Barang</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{{ route('petugas.transaksi.index') }}" class="nav-link">
+                        <i class='bx bx-transfer'></i>
+                        <span>Transaksi</span>
+                    </a>
+                </li>
+            @endif
+
+        </ul>
     </div>
-</nav>
 
-{{-- SIDEBAR --}}
-<div class="sidebar" id="sidebar">
-    <ul class="nav flex-column">
+    {{-- NOTIFIKASI GLOBAL --}}
+    <div class="container mt-3">
 
-        {{-- DASHBOARD --}}
-        <li class="nav-item mb-2">
-            <a class="nav-link"
-               href="{{ auth()->user()->role === 'admin' ? route('dashboard') : route('petugas.dashboard') }}">
-                <i class='bx bx-home'></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
-
-        {{-- ADMIN MENU --}}
-        @if(auth()->user()->role === 'admin')
-            <li class="nav-item mb-2">
-                <a href="{{ route('kategori.index') }}" class="nav-link">
-                    <i class='bx bx-category'></i>
-                    <span>Kategori</span>
-                </a>
-            </li>
-
-            <li class="nav-item mb-2">
-                <a href="{{ route('barang.index') }}" class="nav-link">
-                    <i class='bx bx-box'></i>
-                    <span>Barang</span>
-                </a>
-            </li>
-
-            <li class="nav-item mb-2">
-                <a href="{{ route('user.index') }}" class="nav-link">
-                    <i class='bx bx-user'></i>
-                    <span>User</span>
-                </a>
-            </li>
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         @endif
 
-        {{-- PETUGAS MENU --}}
-        @if(auth()->user()->role === 'petugas')
-            <li class="nav-item mb-2">
-                <a href="{{ route('petugas.stok.index') }}" class="nav-link">
-                    <i class='bx bx-archive'></i>
-                    <span>Stok Barang</span>
-                </a>
-            </li>
-
-            <li class="nav-item mb-2">
-                <a href="{{ route('petugas.transaksi.index') }}" class="nav-link">
-                    <i class='bx bx-transfer'></i>
-                    <span>Transaksi</span>
-                </a>
-            </li>
+        @if (session('warning'))
+            <div class="alert alert-warning alert-dismissible fade show">
+                ⚠️ {{ session('warning') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         @endif
 
-    </ul>
-</div>
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
 
-{{-- NOTIFIKASI GLOBAL --}}
-<div class="container mt-3">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+    </div>
 
-    @if(session('warning'))
-        <div class="alert alert-warning alert-dismissible fade show">
-            ⚠️ {{ session('warning') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+    {{-- CONTENT --}}
+    <div class="content-wrapper" id="contentWrapper">
+        @yield('content')
+    </div>
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
+    {{-- JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach($errors->all() as $err)
-                    <li>{{ $err }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <script>
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('contentWrapper');
 
-</div>
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('expanded');
 
-{{-- CONTENT --}}
-<div class="content-wrapper" id="contentWrapper">
-    @yield('content')
-</div>
-
-{{-- JS --}}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-const toggleBtn = document.getElementById('sidebarToggle');
-const sidebar = document.getElementById('sidebar');
-const content = document.getElementById('contentWrapper');
-
-toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    content.classList.toggle('expanded');
-
-    const icon = toggleBtn.querySelector('i');
-    icon.classList.toggle('bx-chevron-left');
-    icon.classList.toggle('bx-chevron-right');
-});
-</script>
+            const icon = toggleBtn.querySelector('i');
+            icon.classList.toggle('bx-chevron-left');
+            icon.classList.toggle('bx-chevron-right');
+        });
+    </script>
 
 </body>
+
 </html>

@@ -9,7 +9,11 @@ class Transaksi extends Model
 {
     use HasFactory;
 
-    protected $table = 'transaksis'; // opsional tapi aman
+    protected $table = 'transaksis';
+
+    protected $casts = [
+        'tanggal' => 'datetime',
+    ];
 
     protected $fillable = [
         'barang_id',
@@ -25,8 +29,8 @@ class Transaksi extends Model
         return $this->belongsTo(Barang::class);
     }
 
-    public function user()
+    public function pengguna()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Pengguna::class, 'pengguna_id');
     }
 }
