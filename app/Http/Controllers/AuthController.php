@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pengguna;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Pengguna;
 
 class AuthController extends Controller
 {
@@ -26,8 +26,13 @@ class AuthController extends Controller
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
 
+            // 🔑 REDIRECT SESUAI ROLE
             if ($user->role === 'admin') {
                 return redirect()->route('dashboard');
+            }
+
+            if ($user->role === 'petugas') {
+                return redirect()->route('petugas.dashboard');
             }
         }
 
