@@ -25,6 +25,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 // Petugas Routes
 Route::middleware(['auth', 'petugas'])->group(function () {
+    Route::get('/petugas/dashboard', [DashboardController::class, 'index'])->name('petugas.dashboard');
+
     Route::get('/dashboard/petugas', function () {
         return view('petugas.dashboard');
     })->name('petugas.dashboard');

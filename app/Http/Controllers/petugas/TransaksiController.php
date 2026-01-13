@@ -9,16 +9,33 @@ use App\Models\Transaksi;
 
 class TransaksiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Transaksi::with('barang')
+            ->where('pengguna_id', auth()->id());
+
+        // filter tanggal
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
+            $query->whereDate('tanggal', '>=', $request->tanggal_mulai)
+                ->whereDate('tanggal', '<=', $request->tanggal_selesai);
+        }
+
+        // filter jenis transaksi
+        if ($request->filled('jenis_transaksi')) {
+            $query->where('jenis_transaksi', $request->jenis_transaksi);
+        }
+
+        // filter barang
+        if ($request->filled('barang_id')) {
+            $query->where('barang_id', $request->barang_id);
+        }
+
         return view('petugas.transaksi.index', [
-            'barangs' => Barang::with('kategori')->get(),
-            'transaksis' => Transaksi::with('barang')
-                ->where('pengguna_id', auth()->id())
-                ->latest()
-                ->get()
+            'barangs' => Barang::all(),
+            'transaksis' => $query->latest()->get()
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -35,7 +52,7 @@ class TransaksiController extends Controller
             return back()->with('error', 'Stok tidak mencukupi ❌');
         }
 
-        // Update stok
+        // update stok
         if ($request->jenis_transaksi === 'masuk') {
             $barang->stok += $request->jumlah;
         } else {
@@ -53,6 +70,14 @@ class TransaksiController extends Controller
             'tanggal' => now(),
         ]);
 
-        return back()->with('success', 'Transaksi berhasil disimpan ✅');
+        // 🔔 NOTIFIKASI STOK MENIPIS
+        if ($barang->stok <= 5) {
+            session()->flash('warning', 'Stok barang "' . $barang->nama_barang . '" hampir habis!');
+        }
+
+        // 🔔 NOTIFIKASI SUKSES
+        return redirect()
+            ->route('petugas.transaksi.index')
+            ->with('success', 'Transaksi berhasil disimpan ✅');
     }
 }

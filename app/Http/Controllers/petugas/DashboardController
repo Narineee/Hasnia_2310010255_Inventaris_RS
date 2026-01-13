@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Controllers\Petugas;
+
+use App\Http\Controllers\Controller;
+use App\Models\Barang;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        // Ambil barang dengan stok kurang dari 5
+        $stokHampirHabis = Barang::where('stok', '<', 5)->get();
+
+        // Buat array notifikasi untuk dikirim ke blade
+        $notifications = [];
+        if($stokHampirHabis->count() > 0){
+            $notifications[] = '⚠️ Ada '. $stokHampirHabis->count() .' barang dengan stok hampir habis!';
+        }
+
+        return view('petugas.dashboard', compact('notifications'));
+    }
+}
